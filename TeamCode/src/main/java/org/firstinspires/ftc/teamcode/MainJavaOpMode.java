@@ -10,13 +10,10 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp
 public class MainJavaOpMode extends LinearOpMode {
-    private static final int EXTENDED = 11000;
-
-
-
+    private static final int EXTENDED = 12500;
     private static final int RETRACTED = 0;
-    private final int MAX_EXTEND = 2600;
-    private final int MIN_EXTEND = -1000;
+    private final int MAX_EXTEND = -1000;
+    private final int MIN_EXTEND = 2700;
     private final int MAX_ANGLE = 10000;
     private final int MIN_ANGLE = -15000;
     private final int ELEVATOR_MAX = 10000;
@@ -31,6 +28,7 @@ public class MainJavaOpMode extends LinearOpMode {
         DcMotor ClimbRight = hardwareMap.get(DcMotor.class, "ClimbRightMotor");
         Servo ShooterServo = hardwareMap.get(Servo.class, "ShooterServo");
         Servo GrabberServo = hardwareMap.get(Servo.class, "GrabberServo");
+        Servo GrabberServo2 = hardwareMap.get(Servo.class, "GrabberServo2");
         DcMotor frontLeftMotor = hardwareMap.dcMotor.get("frontLeftMotor");
         DcMotor backLeftMotor = hardwareMap.dcMotor.get("backLeftMotor");
         DcMotor frontRightMotor = hardwareMap.dcMotor.get("frontRightMotor");
@@ -40,7 +38,7 @@ public class MainJavaOpMode extends LinearOpMode {
         Drivetrain drivetrain = new Drivetrain(frontLeftMotor, backLeftMotor, frontRightMotor, backRightMotor, imu);
         Elevator elevator = new Elevator(extendMotor, angleMotor);
         Climb climb = new Climb(ClimbLeft, ClimbRight);
-        Grabber grabber = new Grabber(GrabberServo);
+        Grabber grabber = new Grabber(GrabberServo, GrabberServo2);
         Shooter shooter = new Shooter(ShooterServo);
 
         waitForStart();
@@ -52,10 +50,10 @@ public class MainJavaOpMode extends LinearOpMode {
 
             // DRIVETRAIN CONTROLS
             double y2 = gamepad1.right_stick_y;
-            double y1 = -gamepad1.right_stick_x;
+            double rx = gamepad1.right_stick_x;
 
             double x = gamepad1.left_stick_x;
-            double rx = gamepad1.left_stick_y;
+            double y1 = -gamepad1.left_stick_y;
 
             if (gamepad1.options) {
                 drivetrain.imuResetYaw();
@@ -99,7 +97,7 @@ public class MainJavaOpMode extends LinearOpMode {
 
             if (gamepad1.triangle) {
 //                if (drivetrain.getMode() + 1 > 9) {
-                if (drivetrain.getMode() + 1 > 3) {
+                if (drivetrain.getMode() + 1 > 2) {
                     drivetrain.setMode(0);
                 } else {
                     drivetrain.setMode(drivetrain.getMode() + 1);
@@ -117,18 +115,25 @@ public class MainJavaOpMode extends LinearOpMode {
             } else if (gamepad2.y) {
                 grabber.setPusher(Grabber.MIN_PUSHER_POSITION);
             }
+
+            telemetry.addData("Climb Right Position", climb.getRightPosition());
+            telemetry.addData("Climb Left Position", climb.getLeftPosition());
+
             if (gamepad2.back) {
-                elevator.resetEncoders();
+//                elevator.resetEncoders();
+                climb.resetEncoders();
             } else if(gamepad2.dpad_down && gamepad2.left_bumper) {
                 climb.forceMove(false);
-            } else if(gamepad2.dpad_down && gamepad2.left_bumper) {
+            } else if(gamepad2.dpad_up && gamepad2.left_bumper) {
                 climb.forceMove(true);
             } else if(gamepad2.dpad_up) {
                 climb.setTargetPos(EXTENDED);
-                climb.setPower(0.3);
+                climb.setPower(0.5);
             } else if(gamepad2.dpad_down) {
                 climb.setTargetPos(RETRACTED);
-                climb.setPower(0.3);
+                climb.setPower(0.5);
+            } else {
+                climb.setPower(0);
             }
 
             /*
@@ -140,21 +145,21 @@ public class MainJavaOpMode extends LinearOpMode {
              */
 
 
-            if (gamepad2.right_trigger > 0.25) {
-                shooter.setPosition(Servo.MAX_POSITION);
-            } else {
+            if (gamepad2.right_trigger > 0.1) {
                 shooter.setPosition(Servo.MIN_POSITION);
+            } else {
+                shooter.setPosition(Servo.MAX_POSITION);
             }
 
             // ELEVATOR CONTROLS
             // while the opmode is active make new float that takes the left stick y value
-            float extendInput = -gamepad2.left_stick_y;
+            float extendInput = gamepad2.left_stick_y;
             float angleInput = -gamepad2.right_stick_y;
 
             if (extendInput > 0.1)  {
-                elevator.setExtension(MAX_EXTEND, 0.45);
+                elevator.setExtension(MIN_EXTEND, 0.75);
             } else if (extendInput < -0.1) {
-                elevator.setExtension(MIN_EXTEND, 0.45);
+                elevator.setExtension(MAX_EXTEND, 0.75);
             } else {
                 elevator.stopExtend();
             }
@@ -167,9 +172,9 @@ public class MainJavaOpMode extends LinearOpMode {
             telemetry.addData("Elevator Angle Position: ", elevator.getAnglePos());
 
             if(angleInput > 0.1) {
-                elevator.setAngle(MAX_ANGLE, 0.45);
+                elevator.setAngle(MAX_ANGLE, 0.75);
             } else if(angleInput < -0.1) {
-                elevator.setAngle(MIN_ANGLE, 0.45);
+                elevator.setAngle(MIN_ANGLE, 0.75);
             } else {
                 elevator.stopAngle();
             }
