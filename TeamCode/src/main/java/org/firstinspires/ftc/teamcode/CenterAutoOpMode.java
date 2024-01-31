@@ -32,13 +32,15 @@ public class CenterAutoOpMode extends LinearOpMode {
         grabber = new Grabber(
                 hardwareMap.get(Servo.class,"GrabberServo1"),hardwareMap.get(Servo.class,"GrabberServo2")
         );
+
         waitForStart();
 
-        grabber.setPusher(Grabber.MIN_PUSHER_POSITION);
+        grabber.setPusher2(Grabber.MIN_PUSHER_POSITION);
+        grabber.setPusher(Grabber.MAX_PUSHER_POSITION);
 
         sleep(250);
 
-        drive.timeDrive(SpeedDrive, 1.8);
+        drive.timeDrive(SpeedDrive, 2.2);
 
         sleep(250);
 
@@ -46,7 +48,7 @@ public class CenterAutoOpMode extends LinearOpMode {
 
         sleep(250);
 
-        grabber.setPusher(Grabber.MAX_PUSHER_POSITION);
+        grabber.setPusher2(Grabber.MIN_PUSHER_POSITION);
 
         sleep(500);
     }
