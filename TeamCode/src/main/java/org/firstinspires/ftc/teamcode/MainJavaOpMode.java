@@ -41,11 +41,11 @@ public class MainJavaOpMode extends LinearOpMode {
         Grabber grabber = new Grabber(GrabberServo, GrabberServo2);
         Shooter shooter = new Shooter(ShooterServo);
 
-        telemetry.speak("meow");
+        //telemetry.speak("meow");
 
         waitForStart();
 
-        telemetry.speak("meow meow");
+        //telemetry.speak("meow meow");
 
         grabber.setPusher(Grabber.MAX_PUSHER_POSITION);
         grabber.setPusher2(Grabber.MIN_PUSHER_POSITION);
